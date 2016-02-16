@@ -1,9 +1,16 @@
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class DeliverableOne {
 	
@@ -11,23 +18,31 @@ public class DeliverableOne {
 		CreateIndex("testFiles");
 	}
 	
-	public static String CreateIndex(String filePath) {
+	public static void CreateIndex(String filePath) {
 		File inputFolder = new File(filePath);
 		//Map<String, ArrayList<Pair<String,Integer>>> reverseIndex = new HashMap<String, ArrayList<Pair<String,Integer>>>();
-		Map<String, HashMap<String,Integer>> reverseIndex = new HashMap<String, HashMap<String,Integer>>();
+		//Sorted Debug
+		Map<String, TreeMap<String,Integer>> reverseIndex = new TreeMap<String, TreeMap<String,Integer>>();
+		//Hashmap
+//		Map<String, HashMap<String,Integer>> reverseIndex = new HashMap<String, HashMap<String,Integer>>();
 		
 		
 		for (File f : inputFolder.listFiles()){
 			ArrayList<String> tokens = Utilities.tokenizeFile(f);
-//			Map<String, Integer> freqMap = new HashMap<String, Integer>();
 			for(int i = 0; i < tokens.size(); ++i){
-//				Integer frequency = freqMap.get(tokens.get(i));
-				//freqMap.put(tokens.get(i), frequency == null ? 1 : frequency + 1);
-				reverseIndex.putIfAbsent(tokens.get(i), new HashMap<String, Integer>());
-				HashMap<String, Integer> freqMap = reverseIndex.get(tokens.get(i));
+				//Treemap
+				reverseIndex.putIfAbsent(tokens.get(i), new TreeMap<String, Integer>());
+				TreeMap<String, Integer> freqMap = reverseIndex.get(tokens.get(i));
 				freqMap.putIfAbsent(f.getName(), 0);
 				Integer freq = freqMap.get(f.getName());
 				freqMap.put(f.getName(), ++freq);
+//				
+				//Hashmap
+//				reverseIndex.putIfAbsent(tokens.get(i), new HashMap<String, Integer>());
+//				HashMap<String, Integer> freqMap = reverseIndex.get(tokens.get(i));
+//				freqMap.putIfAbsent(f.getName(), 0);
+//				Integer freq = freqMap.get(f.getName());
+//				freqMap.put(f.getName(), ++freq);
 				
 				
 			}
@@ -43,7 +58,18 @@ public class DeliverableOne {
 //			Set<Entry<String,ArrayList<Pair<String,Integer>>>> reverseSet = reverseIndex.entrySet();
 			
 		}
-		System.out.println(reverseIndex.toString());
-		return "";
+		
+		//Pretty Printing
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		System.out.println(gson.toJson(reverseIndex));
+		
+		//Write JSON Object
+//		Gson gson = new GsonBuilder().create();
+//		try(Writer writer = new FileWriter("index.json")){
+//			gson.toJson(reverseIndex, writer);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 }
