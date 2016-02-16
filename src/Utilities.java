@@ -40,7 +40,7 @@ public class Utilities {
 			while(scanner.hasNextLine()){
 				line = scanner.nextLine();
 				if(!line.isEmpty()){
-					line = line.replaceAll("[^a-zA-Z]+", " ").toLowerCase();
+					line = line.replaceAll("[^a-zA-Z']+", " ").toLowerCase();
 					Collections.addAll(result, line.trim().split(" "));
 				}
 			}
