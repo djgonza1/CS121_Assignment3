@@ -5,6 +5,7 @@ tmp/
 *.tmp
 *.bak
 *.swp
+*.json
 *~.nib
 local.properties
 .settings/

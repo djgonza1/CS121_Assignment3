@@ -40,8 +40,10 @@ public class Utilities {
 			while(scanner.hasNextLine()){
 				line = scanner.nextLine();
 				if(!line.isEmpty()){
-					line = line.replaceAll("[^a-zA-Z']+", " ").toLowerCase();
-					Collections.addAll(result, line.trim().split(" "));
+					line = line.replaceAll("[^a-zA-Z]+", " ").toLowerCase();
+					if(!line.equals(" ")){
+						Collections.addAll(result, line.trim().split(" "));
+					}
 				}
 			}
 		} catch (FileNotFoundException e) {
