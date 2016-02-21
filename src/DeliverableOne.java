@@ -20,7 +20,7 @@ public class DeliverableOne {
 	
 	public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
-		CreateIndex("Html");
+		CreateIndex("testFiles");
         long endTime = System.currentTimeMillis();
         long totalTime = endTime - startTime;
         System.out.println(String.format("Program runtime: %d hours, %d minutes, %d seconds", 
@@ -54,31 +54,49 @@ public class DeliverableOne {
 		//Map<String, ArrayList<Pair<String,Integer>>> reverseIndex = new HashMap<String, ArrayList<Pair<String,Integer>>>();
 		//Sorted Debug
 		int fileNumber = 0;
-//		Map<String, TreeMap<String,Integer>> reverseIndex = new TreeMap<String, TreeMap<String,Integer>>();
-		//Hashmap
-		Map<String, HashMap<String,Integer>> reverseIndex = new HashMap<String, HashMap<String,Integer>>();
+		int termID = 0;
+		Map<Integer, TreeMap<Integer,Integer>> reverseIndex = new TreeMap<Integer, TreeMap<Integer,Integer>>();
+		Map<String, Integer> termIDSMap = new TreeMap<String, Integer>();
+
 		
-		for (Entry<String,LinkedTreeMap<String,String>> entry : htmlJSON.entrySet()){
-			File file = new File("Html/" + entry.getValue().get("file"));
+		//Hashmap
+//		Map<String, HashMap<Integer,Integer>> reverseIndex = new HashMap<String, HashMap<String,Integer>>();
+//		Map<Integer, String> termIDs = new HashMap<Integer, String>();
+		for (Entry<String,LinkedTreeMap<String,String>> docEntry : htmlJSON.entrySet()){
+			File file = new File("Html/" + docEntry.getValue().get("file"));
 			++fileNumber;
-			ArrayList<String> tokens = Utilities.tokenizeFile(file);
-			for(int i = 0; i < tokens.size(); ++i){
-				if(stopWords.contains(tokens.get(i))){
+			Map<String,Integer> tokens = Utilities.tokenizeFileToMap(file);
+			for(Entry<String,Integer> wordFreq : tokens.entrySet()){
+				if(stopWords.contains(wordFreq.getKey())){
 					continue;
 				}
+
+//				Integer termID = tokens.get(i).hashCode();
+				if(!termIDSMap.containsKey(wordFreq.getKey())){
+					termIDSMap.put(wordFreq.getKey(), ++termID);
+
+				}
 				//Treemap
-//				reverseIndex.putIfAbsent(tokens.get(i), new TreeMap<String, Integer>());
-//				TreeMap<String, Integer> freqMap = reverseIndex.get(tokens.get(i));
+//				if(termID == 110708){
+//					System.out.println(tokens.toString());
+//					System.out.println(wordFreq.toString());
+//					break;
+//				}
+				Integer wordID = termIDSMap.get(wordFreq.getKey());
+				reverseIndex.putIfAbsent(wordID, new TreeMap<Integer,Integer>());
+				TreeMap<Integer, Integer> freqMap = reverseIndex.get(wordID);
+				freqMap.put(Integer.parseInt(docEntry.getKey()), wordFreq.getValue());
+//				TreeMap<Integer, Integer> freqMap = reverseIndex.get(termID);
+//				freqMap.putIfAbsent(Integer.parseInt(entry.getKey()), 0);
+//				Integer freq = freqMap.get(Integer.parseInt(entry.getKey()));
+//				freqMap.put(Integer.parseInt(entry.getKey()), ++freq);
+				
+				//Hashmap
+//				reverseIndex.putIfAbsent(tokens.get(i), new HashMap<String, Integer>());
+//				HashMap<String, Integer> freqMap = reverseIndex.get(tokens.get(i));
 //				freqMap.putIfAbsent(entry.getKey(), 0);
 //				Integer freq = freqMap.get(entry.getKey());
 //				freqMap.put(entry.getKey(), ++freq);
-//				
-				//Hashmap
-				reverseIndex.putIfAbsent(tokens.get(i), new HashMap<String, Integer>());
-				HashMap<String, Integer> freqMap = reverseIndex.get(tokens.get(i));
-				freqMap.putIfAbsent(entry.getKey(), 0);
-				Integer freq = freqMap.get(entry.getKey());
-				freqMap.put(entry.getKey(), ++freq);
 				
 				
 			}
@@ -93,13 +111,21 @@ public class DeliverableOne {
 //			Set<Entry<String,ArrayList<Pair<String,Integer>>>> reverseSet = reverseIndex.entrySet();
 			
 		}
-		
+//		System.out.println(termIDSMap.get("banging"));
+//		System.out.println(reverseIndex.get(110708).toString());
+//		
 		//Pretty Printing/Larger File Size
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 //		System.out.println(gson.toJson(reverseIndex));
 		
 		//Write JSON Object/Smaller File Size
 //		Gson gson = new GsonBuilder().create();
+		try(Writer writer = new FileWriter("termID.json")){
+			gson.toJson(termIDSMap, writer);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		try(Writer writer = new FileWriter("indexReadable.json")){
 			gson.toJson(reverseIndex, writer);
 		} catch (IOException e) {

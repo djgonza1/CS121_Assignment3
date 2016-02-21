@@ -1,7 +1,10 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 /**
  * A collection of utility methods for text processing.
@@ -43,6 +46,43 @@ public class Utilities {
 					line = line.replaceAll("[^a-zA-Z]+", " ").toLowerCase();
 					if(!line.equals(" ")){
 						Collections.addAll(result, line.trim().split(" "));
+					}
+				}
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally{
+			if(scanner!= null){
+				scanner.close();
+			}
+		}
+		return result;
+
+	}
+	
+	public static Map<String,Integer> tokenizeFileToMap(File input) {
+		// TODO Write body!
+		Map<String, Integer> result = new HashMap<String, Integer>();
+		if(input == null || input.length() == 0){
+			return result;
+		}
+		Scanner scanner = null;
+		try {
+			scanner = new Scanner(input);
+			String line = null;
+			while(scanner.hasNextLine()){
+				line = scanner.nextLine();
+				if(!line.isEmpty()){
+					line = line.replaceAll("[^a-zA-Z]+", " ").toLowerCase();
+					if(!line.equals(" ")){
+						String[] tokens = line.trim().split(" ");
+						for(String token : tokens){
+							result.putIfAbsent(token, 0);
+							Integer freq = result.get(token);
+							result.put(token, ++freq);
+						}
 					}
 				}
 			}
