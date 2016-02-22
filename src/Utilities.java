@@ -6,6 +6,11 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 /**
  * A collection of utility methods for text processing.
  */
@@ -93,6 +98,42 @@ public class Utilities {
 		finally{
 			if(scanner!= null){
 				scanner.close();
+			}
+		}
+		return result;
+
+	}
+	
+	public static Map<String,Integer> tokenizeFileBodyToMap(File input) {
+		// TODO Write body!
+		Map<String, Integer> result = new HashMap<String, Integer>();
+		Document doc = null;
+		StringBuilder stringBuilder = new StringBuilder();
+		try {
+			doc = Jsoup.parse(input,"UTF-8");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		if(doc != null){
+			Elements bodys = doc.select("body");
+			if(bodys != null){
+				for(Element body : bodys){
+//					System.out.println(body.text());
+					stringBuilder.append(body.text());
+				}
+			}
+		}
+		String text = stringBuilder.toString();
+		if(!text.isEmpty()){
+			text = text.replaceAll("[^a-zA-Z]+", " ").toLowerCase();
+			if(!text.equals(" ")){
+				String[] tokens = text.trim().split(" ");
+				for(String token : tokens){
+					result.putIfAbsent(token, 0);
+					Integer freq = result.get(token);
+					result.put(token, ++freq);
+				}
 			}
 		}
 		return result;
