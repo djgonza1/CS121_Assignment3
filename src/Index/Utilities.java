@@ -1,3 +1,6 @@
+//Harry Pham 79422112 David Gonzalez 50765033
+package Index;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,9 +70,9 @@ public class Utilities {
 
 	}
 	
-	public static Map<String,Integer> tokenizeFileToMap(File input) {
+	public static Map<String,Float> tokenizeFileToMap(File input) {
 		// TODO Write body!
-		Map<String, Integer> result = new HashMap<String, Integer>();
+		Map<String, Float> result = new HashMap<String, Float>();
 		if(input == null || input.length() == 0){
 			return result;
 		}
@@ -84,8 +87,8 @@ public class Utilities {
 					if(!line.equals(" ")){
 						String[] tokens = line.trim().split(" ");
 						for(String token : tokens){
-							result.putIfAbsent(token, 0);
-							Integer freq = result.get(token);
+							result.putIfAbsent(token, 0f);
+							float freq = result.get(token);
 							result.put(token, ++freq);
 						}
 					}
@@ -104,9 +107,9 @@ public class Utilities {
 
 	}
 	
-	public static Map<String,Integer> tokenizeFileBodyToMap(File input) {
+	public static Map<String,Float> tokenizeFileBodyToMap(File input) {
 		// TODO Write body!
-		Map<String, Integer> result = new HashMap<String, Integer>();
+		Map<String, Float> result = new HashMap<String, Float>();
 		Document doc = null;
 		StringBuilder stringBuilder = new StringBuilder();
 		try {
@@ -130,8 +133,8 @@ public class Utilities {
 			if(!text.equals(" ")){
 				String[] tokens = text.trim().split(" ");
 				for(String token : tokens){
-					result.putIfAbsent(token, 0);
-					Integer freq = result.get(token);
+					result.putIfAbsent(token, 0f);
+					float freq = result.get(token);
 					result.put(token, ++freq);
 				}
 			}
@@ -174,5 +177,18 @@ public class Utilities {
 		}
 		return result;
 
+	}
+	
+	public static ArrayList<String> tokenizeQuery(String query){
+		ArrayList<String> result = new ArrayList<String>();
+		ArrayList<String> stopWords = tokenizeFile(new File("stopwords.txt"));
+		query = query.replaceAll("[^a-zA-Z]+", " ").toLowerCase();
+		String[] tokenizedQuery = query.split(" ");
+		for(String token : tokenizedQuery){
+			if (!token.equals("") && !stopWords.contains(token)){
+				result.add(token);
+			}
+		}
+		return result;
 	}
 }

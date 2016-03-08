@@ -1,3 +1,7 @@
+//Harry Pham 79422112 David Gonzalez 50765033
+package Index;
+
+
 /**
  * Basic class for pairing a word/2-gram/palindrome with its frequency.
  * 

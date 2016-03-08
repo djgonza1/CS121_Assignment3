@@ -1,3 +1,6 @@
+//Harry Pham 79422112 David Gonzalez 50765033
+package Index;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -54,20 +57,21 @@ public class DeliverableOne {
 		//Sorted Debug
 		int fileNumber = 0;
 		int termID = 0;
-//		Map<Integer, TreeMap<Integer,Integer>> reverseIndex = new TreeMap<Integer, TreeMap<Integer,Integer>>();
+//		Map<Integer, Map<Integer,Float>> reverseIndex = new TreeMap<Integer, Map<Integer,Float>>();
 //		Map<String, Integer> termIDSMap = new TreeMap<String, Integer>();
 
 		
 		//Hashmap
-		Map<Integer, HashMap<Integer,Integer>> reverseIndex = new HashMap<Integer, HashMap<Integer,Integer>>();
+		Map<Integer, Map<Integer,Float>> reverseIndex = new HashMap<Integer, Map<Integer,Float>>();
 		Map<String, Integer> termIDSMap = new HashMap<String, Integer>();
 
 		for (Entry<String,LinkedTreeMap<String,String>> docEntry : htmlJSON.entrySet()){
 			File file = new File("Html/" + docEntry.getValue().get("file"));
 //			System.out.println(docEntry.getValue());
 			++fileNumber;
-			Map<String,Integer> tokens = Utilities.tokenizeFileBodyToMap(file);
-			for(Entry<String,Integer> wordFreq : tokens.entrySet()){
+			System.out.println(String.format("Indexing file number %d.", fileNumber));
+			Map<String,Float> tokens = Utilities.tokenizeFileBodyToMap(file);
+			for(Entry<String,Float> wordFreq : tokens.entrySet()){
 				if(stopWords.contains(wordFreq.getKey())){
 					continue;
 				}
@@ -77,50 +81,36 @@ public class DeliverableOne {
 					termIDSMap.put(wordFreq.getKey(), ++termID);
 
 				}
-//				if(termID == 110708){
-//				System.out.println(tokens.toString());
-//				System.out.println(wordFreq.toString());
-//				break;
-//			}
-				//Treemap
-//				Integer wordID = termIDSMap.get(wordFreq.getKey());
-//				reverseIndex.putIfAbsent(wordID, new TreeMap<Integer,Integer>());
-//				TreeMap<Integer, Integer> freqMap = reverseIndex.get(wordID);
-//				freqMap.put(Integer.parseInt(docEntry.getKey()), wordFreq.getValue());
-				
-				//Hashmap
 				Integer wordID = termIDSMap.get(wordFreq.getKey());
-				reverseIndex.putIfAbsent(wordID, new HashMap<Integer,Integer>());
-				HashMap<Integer, Integer> freqMap = reverseIndex.get(wordID);
-				freqMap.put(Integer.parseInt(docEntry.getKey()), wordFreq.getValue());
-//				reverseIndex.putIfAbsent(tokens.get(i), new HashMap<String, Integer>());
-//				HashMap<String, Integer> freqMap = reverseIndex.get(tokens.get(i));
-//				freqMap.putIfAbsent(entry.getKey(), 0);
-//				Integer freq = freqMap.get(entry.getKey());
-//				freqMap.put(entry.getKey(), ++freq);
-				
-				
+				//Treemap
+//				reverseIndex.putIfAbsent(wordID, new TreeMap<Integer,Float>());
+				//HashMap
+				reverseIndex.putIfAbsent(wordID, new HashMap<Integer,Float>());
+
+				Map<Integer, Float> freqMap = reverseIndex.get(wordID);
+				freqMap.put(Integer.parseInt(docEntry.getKey()), wordFreq.getValue());				
 			}
-			System.out.println("File #" + fileNumber + " completed.");
-//			for(Entry<String, Integer> entry : freqMap.entrySet()) {
-//				reverseIndex.putIfAbsent(entry.getKey(), new ArrayList<Pair<String,Integer>>());
-//				ArrayList<Pair<String,Integer>> docList = reverseIndex.get(entry.getKey());
-//				
-//				docList.add(new Pair<String,Integer>(f.getName(), entry.getValue()));
-//			}
-//			
-//			Set<Entry<String,ArrayList<Pair<String,Integer>>>> reverseSet = reverseIndex.entrySet();
-			
 		}
+		double corpusSize = fileNumber;
+		for(Entry<Integer, Map<Integer, Float>> postingsList : reverseIndex.entrySet()){
+			double docFreq = postingsList.getValue().size();
+			float idf = (float) Math.log(corpusSize / docFreq);
+			for (Entry<Integer, Float> docEntry : postingsList.getValue().entrySet()){
+				float tf = docEntry.getValue();
+				float wtf = (float) (1f + Math.log(tf));
+				float tf_idf = wtf * idf;
+				postingsList.getValue().put(docEntry.getKey(), tf_idf);
+			}
+		}
+
 //		System.out.println(termIDSMap.get("banging"));
 //		System.out.println(reverseIndex.get(110708).toString());
 //		
 		//Pretty Printing/Larger File Size
-//		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-//		System.out.println(gson.toJson(reverseIndex));
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		
 		//Write JSON Object/Smaller File Size
-		Gson gson = new GsonBuilder().create();
+//		Gson gson = new GsonBuilder().create();
 		try(Writer writer = new FileWriter("termID.json")){
 			gson.toJson(termIDSMap, writer);
 		} catch (IOException e) {
